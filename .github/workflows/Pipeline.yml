@@ -1,0 +1,49 @@
+name : .NET Core
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [Desarrollo]
+  pull_request:
+    branches: [Desarrollo]
+    types: [opened, synchronize]
+
+jobs:
+  evitar_redundancia:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Cancela Build Redundantes Previas
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet: [ '7.0.x' ]
+    env:
+      Solution_Name: ./LoginDefault.sln
+    name: Dotnet ${{ matrix.dotnet }} build
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Instalacion de .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    #- name: Setup MSBuild.exe
+    #  uses: microsoft/setup-msbuild@v1.0.2
+
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Build proyecto
+      run: dotnet build ${{ env.Solution_Name }}
+      
