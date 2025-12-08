@@ -31,7 +31,7 @@ dotnet tool install --global dotnet-ef
 Para aplicar la ingeniería reversa de la base de datos y poder mapear todas las entidades, podemos hacer uso del  `scaffold` de `ef core`. Esto funciona bien cuando usamos el enfoque de `database first`,  o bien cuando queremos realizar algún cambio grande de la base de datos, que es complicado de realizar en código. 
 
 ```bash
-dotnet ef dbcontext scaffold "Data Source=172.19.2.130;Initial Catalog=SEUP;User Id=sa;password=123456789;Encrypt=False;" Microsoft.EntityFrameworkCore.SqlServer --output-dir Domain\Entities --context-dir Infraestructure\Persistance --context SEUPDbContext --project Application.Core\Application.Core.csproj
+dotnet ef dbcontext scaffold "Data Source=COLOCA_TU_IP;Initial Catalog=NOMBRE_BD ;User Id=NOMBRE_USER;password=TU_CONTRASEÑA ;Encrypt=False;" Microsoft.EntityFrameworkCore.SqlServer --output-dir Domain\Entities --context-dir Infraestructure\Persistance --context SEUPDbContext --project Application.Core\Application.Core.csproj
 ```
 _________________
 ### Crear las migraciones
