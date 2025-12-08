@@ -25,7 +25,7 @@ jobs:
       matrix:
         dotnet: [ '7.0.x' ]
     env:
-      Solution_Name: ./LoginDefault.sln
+      Solution_Name: ./CodigosPostales.sln
     name: Dotnet ${{ matrix.dotnet }} build
     steps:
     - name: Checkout
