@@ -37,7 +37,7 @@ public static class ConfigureServices
             {
                 Version = "v1",
                 Title = config["Documentation:Title"] ?? "Api",
-                Description = ReadDescriptionFromFile(config["Documentation:DescriptionPath"]),
+                Description = ReadDescriptionFromFile(config["Documentation:DescriptionPath"] ?? string.Empty),
                 Contact = new OpenApiContact
                 {
                     Name = "Administrador",

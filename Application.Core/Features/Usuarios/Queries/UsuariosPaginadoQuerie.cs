@@ -51,15 +51,22 @@ namespace Application.Core.Features.Usuarios.Queries
                 throw new ForbiddenAccessException();
             }
 
+            // Validar que exista token para llamadas a Llave
+            if (string.IsNullOrWhiteSpace(usuarioActual?.TokenLlave))
+            {
+                throw new UnathorizedException();
+            }
+
             // Se obtiene la lista de usuarios en Llave sin el nombre de UDA O DUDA. 
             List<Usuario> listaPersonal = await _context.Usuarios.
                                             Where(x => x.Activo == true).Include(x => x.Rol).ToListAsync();
 
-            // sacar la lista de IDS de LlaveCamp de los usuarios filtrados
+            // sacar la lista de IDS de LlaveCamp de los usuarios filtrados (ignorar nulos)
             List<int> listaIdsLlave = new List<int>();
             foreach (var usuario in listaPersonal)
             {
-                listaIdsLlave.Add(usuario.IdUsuarioLlave);
+                if (usuario.IdUsuarioLlave.HasValue)
+                    listaIdsLlave.Add(usuario.IdUsuarioLlave.Value);
             }
 
             //conexion con llave ------------
@@ -74,10 +81,13 @@ namespace Application.Core.Features.Usuarios.Queries
 
             List<DatosUsuario> DatosUsuariosCompletos = new List<DatosUsuario>();
 
-            // Combinar los datos en  DatosUsuario
+            // Combinar los datos en  DatosUsuario (omitir cuando no exista mapping local)
             foreach (var usuariollave in usuariosLlave)
             {
-                Usuario usuarioSEUP = listaPersonal.Where(x => x.IdUsuarioLlave == usuariollave.IdUsuario).FirstOrDefault();
+                Usuario? usuarioSEUP = listaPersonal.FirstOrDefault(x => x.IdUsuarioLlave == usuariollave.IdUsuario);
+                if (usuarioSEUP == null)
+                    continue; // no tenemos ese usuario en la lista local, omitir
+
                 DatosUsuariosCompletos.Add(await UnirDatosCompletosUsuario(usuariollave, usuarioSEUP, _mapper));
             }
 
