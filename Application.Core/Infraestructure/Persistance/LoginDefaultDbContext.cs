@@ -185,64 +185,57 @@ public partial class LoginDefaultDbContext : DbContext
             entity.HasOne(d => d.FkUsuarioUltimaModNavigation).WithMany(p => p.CpAsentamientos).HasForeignKey(d => d.FkUsuarioUltimaMod).HasConstraintName("FK_CP_UsuarioMod");
         });
 
-   // =========================================================
-        // 1. TABLA PRINCIPAL DE LOGS (Arregla UsuarioIdUsuario)
-        // =========================================================
-        modelBuilder.Entity<SysRegistroModificacione>(entity =>
+
+      modelBuilder.Entity<SysRegistroModificacione>(entity =>
         {
             entity.ToTable("SYS_REGISTRO_MODIFICACIONES");
 
-            // LLAVE PRIMARIA
+            // Asegúrate que IdLog sea long si tu BD es BigInt, o int si es Int.
             entity.HasKey(e => e.IdLog);
-            entity.Property(e => e.IdLog).HasColumnName("ID_Log"); // int
+            entity.Property(e => e.IdLog).HasColumnName("ID_Log"); 
 
-            // PROPIEDADES
-            entity.Property(e => e.Accion).HasMaxLength(50).IsUnicode(false);
+            entity.Property(e => e.Accion).HasMaxLength(int.MaxValue).IsUnicode(false);
             entity.Property(e => e.FechaHora).HasColumnName("Fecha_Hora");
-            
-            // LLAVES FORÁNEAS (INT)
             entity.Property(e => e.FkUsuario).HasColumnName("FK_Usuario");
             entity.Property(e => e.FkAsentamiento).HasColumnName("FK_Asentamiento");
 
-            // --- RELACIONES EXPLÍCITAS (Esto mata al fantasma UsuarioIdUsuario) ---
-
-            // Relación con USUARIO
+            // RELACIONES UNIDIRECCIONALES
+            // Al dejar .WithMany() vacío, ignoramos cualquier lista fantasma que haya quedado.
+            
             entity.HasOne(d => d.FkUsuarioNavigation)
-                .WithMany(p => p.SysRegistroModificaciones) // Conecta con la lista en Usuario.cs
-                .HasForeignKey(d => d.FkUsuario)            // Usa la columna FK_Usuario
+                .WithMany() // <--- VACÍO (El truco maestro)
+                .HasForeignKey(d => d.FkUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Usuario_Log");
 
-            // Relación con ASENTAMIENTO
             entity.HasOne(d => d.FkAsentamientoNavigation)
-                .WithMany(p => p.SysRegistroModificaciones) // Conecta con la lista en CpAsentamiento.cs
+                .WithMany() // <--- VACÍO TAMBIÉN
                 .HasForeignKey(d => d.FkAsentamiento)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Asentamiento_Log");
         });
+        
+    modelBuilder.Entity<SysRegistroModificacionesJson>(entity =>
+{
+    entity.ToTable("SYS_REGISTRO_MODIFICACIONES_JSON");
 
-        // =========================================================
-        // 2. TABLA JSON (Arregla el error de compatibilidad long/int)
-        // =========================================================
-        modelBuilder.Entity<SysRegistroModificacionesJson>(entity =>
-        {
-            entity.ToTable("SYS_REGISTRO_MODIFICACIONES_JSON");
-            
-            // LLAVE PRIMARIA Y FORÁNEA COMPARTIDA
-            entity.HasKey(e => e.IdLog);
-            
-            // Forzamos a que sea INT para que coincida con la tabla padre
-            entity.Property(e => e.IdLog).HasColumnName("ID_Log").HasColumnType("int"); 
-            
-            entity.Property(e => e.DatosAnteriores).HasColumnName("Datos_Anteriores");
+    entity.HasKey(e => e.IdLog);
 
-            // RELACIÓN 1 a 1
-            entity.HasOne(d => d.IdLogNavigation)
-                .WithOne(p => p.SysRegistroModificacionesJson)
-                .HasForeignKey<SysRegistroModificacionesJson>(d => d.IdLog)
-                .HasConstraintName("FK_Json_Log");
-        });
+    entity.Property(e => e.IdLog)
+          .HasColumnName("ID_Log")
+          .ValueGeneratedNever();
 
+    entity.Property(e => e.DatosAnteriores)
+          .HasColumnName("Datos_Anteriores");
+
+    // --- AQUÍ ESTÁ EL ARREGLO ---
+    entity.HasOne(d => d.IdLogNavigation)
+          .WithOne() // <--- DÉJALO VACÍO (Sin parámetros)
+          .HasForeignKey<SysRegistroModificacionesJson>(d => d.IdLog)
+          .HasConstraintName("FK_SYS_REGISTRO_MODIFICACIONES_JSON_Log");
+
+
+});
         modelBuilder.Entity<VwPermisosUsuario>(entity =>
         {
             entity.HasNoKey().ToView("VW_PERMISOS_USUARIOS");

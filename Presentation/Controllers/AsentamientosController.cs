@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR; 
 using Application.Core.Features.Asentamientos.Queries; // Para ver el Query
 using Application.Core.Features.Asentamientos.Commands;
+using Application.Core.Features.Catalogos.Queries;
+using Application.Core.Features.Asentamientos.DTOs;
+
 
 namespace Presentation.Controllers
 {
@@ -55,6 +58,68 @@ namespace Presentation.Controllers
                 return Problem("Error al crear: " + ex.Message);
             }
         }
-    }
+        
+        [HttpGet("Filtros")]
+        public async Task<ActionResult> BuscarConFiltros([FromQuery] ObtenerAsentamientosFiltroQuery filtros)
+        {
+            var respuesta = await _mediator.Send(filtros);
+            return Ok(respuesta);
+        }
+
+
+    [HttpPut("{id}")]
+        public async Task<ActionResult> Editar(int id, [FromBody] EditarAsentamientoCommand command)
+        {
+            command.Id = id; // <--- ESTO ES VITAL. Asigna el ID de la URL al comando oculto.
+
+            try
+            {
+                await _mediator.Send(command);
+                return Ok(new { Mensaje = "Actualizado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+    [HttpDelete("{id}")]
+        public async Task<ActionResult> Eliminar(int id)
+        {
+            try
+            {
+                await _mediator.Send(new EliminarAsentamientoCommand(id));
+                return Ok(new { Mensaje = "Asentamiento eliminado (desactivado) correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+         }
+
+
+    [HttpGet("{id}")]
+        public async Task<ActionResult<AsentamientoDto>> ObtenerPorId(int id)
+        {
+            try 
+            {
+                var resultado = await _mediator.Send(new ObtenerAsentamientoPorIdQuery(id));
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}/Historial")]
+        public async Task<ActionResult<List<HistorialDto>>> ObtenerHistorial(int id)
+        {
+            var historial = await _mediator.Send(new ObtenerHistorialAsentamientoQuery(id));
+            return Ok(historial);
+        }
     
+    }
 }

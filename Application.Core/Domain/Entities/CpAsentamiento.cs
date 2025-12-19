@@ -33,5 +33,5 @@ public partial class CpAsentamiento
 
     public virtual Usuario? FkUsuarioUltimaModNavigation { get; set; }
 
-    public virtual ICollection<SysRegistroModificacione> SysRegistroModificaciones { get; set; } = new List<SysRegistroModificacione>();
+   // public virtual ICollection<SysRegistroModificacione> SysRegistroModificaciones { get; set; } = new List<SysRegistroModificacione>();
 }

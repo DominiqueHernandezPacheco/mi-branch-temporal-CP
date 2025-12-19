@@ -10,7 +10,7 @@ namespace Presentation.Controllers;
 //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("Api/[controller]")]
-public class CatalogosController
+public class CatalogosController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<CatalogosController> _logger;
@@ -35,4 +35,24 @@ public class CatalogosController
         return await _mediator.Send(new RolesQuerie());
     }
 
-}
+    // 1. Catálogo de Municipios
+        [HttpGet("Municipios")]
+        public async Task<ActionResult<List<CatalogoDto>>> GetMunicipios()
+        {
+            return Ok(await _mediator.Send(new MunicipiosQuery()));
+        }
+
+        // 2. Catálogo de Tipos de Asentamiento
+        [HttpGet("TiposAsentamiento")]
+        public async Task<ActionResult<List<CatalogoDto>>> GetTiposAsentamiento()
+        {
+            return Ok(await _mediator.Send(new TiposAsentamientoQuery()));
+        }
+
+        [HttpGet("Ciudades")]
+        public async Task<ActionResult<List<CatalogoDto>>> GetCiudades()
+        {
+            return Ok(await _mediator.Send(new CiudadesQuery()));
+        }
+    }
+

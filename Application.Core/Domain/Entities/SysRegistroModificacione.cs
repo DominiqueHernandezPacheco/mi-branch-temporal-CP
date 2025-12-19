@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema; // <--- OBLIGATORIO
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Application.Core.Domain.Entities;
 
 public partial class SysRegistroModificacione
 {
-    public int IdLog { get; set; } // O long
+    public long IdLog { get; set; } // O int, según tu BD
     public int FkUsuario { get; set; }
     public int FkAsentamiento { get; set; }
     public string Accion { get; set; } = null!;
     public DateTime? FechaHora { get; set; }
 
-    // --- AQUÍ ESTÁ LA SOLUCIÓN MÁGICA ---
-
+    // --- BORRA EL [InverseProperty] DE AQUÍ ---
     [ForeignKey("FkAsentamiento")]
-    [InverseProperty("SysRegistroModificaciones")] // <--- Conecta con la lista en CpAsentamiento
     public virtual CpAsentamiento FkAsentamientoNavigation { get; set; } = null!;
 
+    // --- BORRA EL [InverseProperty] DE AQUÍ TAMBIÉN ---
     [ForeignKey("FkUsuario")]
-    [InverseProperty("SysRegistroModificaciones")] // <--- Conecta con la lista en Usuario
     public virtual Usuario FkUsuarioNavigation { get; set; } = null!;
 
-    public virtual SysRegistroModificacionesJson? SysRegistroModificacionesJson { get; set; }
 }

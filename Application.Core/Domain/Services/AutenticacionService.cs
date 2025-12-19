@@ -47,6 +47,7 @@ public class AutenticacionService
         );
         
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        
     }
     
 
